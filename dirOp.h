@@ -31,7 +31,7 @@ vector<struct simpleDirent> traverseDirectoryLevel(string dir){
 	struct simpleDirent temp;
 	vector<struct simpleDirent> fileList;
 	if(ptr_dir == NULL){
-		cout<<"DIR PTR NULL"<<endl;
+		/* cout<<"DIR PTR NULL"<<endl; */
 		return fileList;
 	}
 	while((holder = readdir(ptr_dir)) != NULL &&( ptr_dir != NULL)){
