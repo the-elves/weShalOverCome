@@ -45,6 +45,7 @@ vector<struct simpleDirent> traverseDirectoryLevel(string dir){
 			temp.size = 0;
 		}
 		else{
+			continue;
 			temp.type = F;
 			fstream a;
 			pthread_mutex_lock(&fileMutex);

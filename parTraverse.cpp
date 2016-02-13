@@ -39,7 +39,40 @@ class Comparator{
 		void fireThread1();
 		void fireThread2();
 		vector<Dir>::iterator find(Dir ,vector<Dir>,vector<Dir>::iterator);
+		void prepareTrees();
 };
+
+void Comparator::prepareTrees(){
+	vector< vector<Dir> >::iterator it1 = fileSystem1.end()-1;
+	vector< vector<Dir> >::iterator it2 = fileSystem2.end()-1;
+	vector<Dir>::iterator temp,fIt;
+	cout<<"before rotation 1 ---------------------------"<<endl;
+	cout<<(*it1)[0].name<<endl;
+	cout<<"before rotation 2 ---------------------------"<<endl;
+	cout<<(*it2)[0].name<<endl;
+	bool flag = false;
+	for(fIt=(*it1).begin(); fIt!=(*it1).end(); fIt ++){
+		for( temp = (*it2).begin(); temp!=(*it2).end(); temp ++)
+			if((*temp).name == (*fIt).name){
+				flag = true;
+				break;
+			}
+		if( flag )
+			break;
+	} 
+	
+	if(fIt != (*it1).end() && fIt != (*it1).begin()){
+		rotate((*it1).begin(),fIt,(*it1).end());
+	}
+	cout<<"fit rotated"<<endl;
+	if(temp!=(*it2).end() && temp!= (*it2).begin())
+		rotate((*it2).begin(),temp,(*it2).end());
+	cout<<"after rotation 1 ---------------------------"<<endl;
+	cout<<(*it1)[0].name<<endl;
+	cout<<"after rotation 2 ---------------------------"<<endl;
+	cout<<(*it2)[0].name<<endl;
+
+}
 
 string root1 = "/home/illuminati/root1";
 string root2 = "/home/illuminati/root2";
@@ -89,10 +122,10 @@ vector<Dir>::iterator Comparator::find(Dir a,vector<Dir> v,vector<Dir>::iterator
 
 void Comparator::analyseAction(){
 	if(threadOneCommand[0] == 't' && handleResponseFrom1){
-		cout<<"thread one returned"<<endl;
-		printCurrentLevel(thread1Level);
+		/* cout<<"thread one returned"<<endl; */
+		/* printCurrentLevel(thread1Level); */
 		if(thread1Level.size()==0){
-			cout<<"thread1levelsize = 0\n";
+			/* cout<<"thread1levelsize = 0\n"; */
 			while((*(fileSystem1.end()-1)).size() == 1 && fileSystem1.size()!= 0){
 				fileSystem1.erase(fileSystem1.end()-1);
 			}
@@ -106,8 +139,8 @@ void Comparator::analyseAction(){
 			fileSystem1.push_back(thread1Level);
 	}
 	if(threadTwoCommand[0] == 't' && handleResponseFrom2){
-		cout<<"thread two returned"<<endl;
-		printCurrentLevel(thread2Level);
+		/* cout<<"thread two returned"<<endl; */
+		/* printCurrentLevel(thread2Level); */
 		if(thread2Level.size()==0){
 			while((*(fileSystem2.end()-1)).size() == 1 && fileSystem2.size()!= 0){
 				fileSystem2.erase(fileSystem2.end()-1);
@@ -221,14 +254,18 @@ void Comparator::start(){
 	do{
 		//string Comparator::formCommandWord(string s, vector<vector<Dir> > fileSystem,vector<string> &currentPath,string root){
 		if(fileSystem1.size()==fileSystem2.size()){
+			
+			if(fileSystem1.size()!=1)
+				prepareTrees();
+			
 			threadOneCommand=formCommandWord("t",fileSystem1,currentT1Path,root1);
-			cout<<"T1Command:"<<threadOneCommand<<endl;
+			/* cout<<"T1Command:"<<threadOneCommand<<endl; */
 			handleResponseFrom1=handleResponseFrom2=true;
 			fireThread1();
 
 			
 			threadTwoCommand=formCommandWord("t",fileSystem2,currentT2Path,root2);
-			cout<<"T2Command:"<<threadTwoCommand<<endl;
+			/* cout<<"T2Command:"<<threadTwoCommand<<endl; */
 			fireThread2();
 
 			pthread_mutex_lock(&respMutex);							//wait
@@ -244,7 +281,7 @@ void Comparator::start(){
 			handleResponseFrom2=true;
 			handleResponseFrom1=false;
 			threadTwoCommand=formCommandWord("t",fileSystem2,currentT2Path,root2);
-			cout<<"T2Command:"<<threadTwoCommand<<endl;
+			/* cout<<"T2Command:"<<threadTwoCommand<<endl; */
 			fireThread2();
 
 			pthread_mutex_lock(&respMutex);							//wait
@@ -260,7 +297,7 @@ void Comparator::start(){
 			handleResponseFrom2=false;
 
 			threadOneCommand=formCommandWord("t",fileSystem1,currentT1Path,root1);
-			cout<<"T1Command:"<<threadOneCommand<<endl;
+			/* cout<<"T1Command:"<<threadOneCommand<<endl; */
 			fireThread1();
 
 			pthread_mutex_lock(&respMutex);							//wait
