@@ -46,10 +46,6 @@ void Comparator::prepareTrees(){
 	vector< vector<Dir> >::iterator it1 = fileSystem1.end()-1;
 	vector< vector<Dir> >::iterator it2 = fileSystem2.end()-1;
 	vector<Dir>::iterator temp,fIt;
-	cout<<"before rotation 1 ---------------------------"<<endl;
-	cout<<(*it1)[0].name<<endl;
-	cout<<"before rotation 2 ---------------------------"<<endl;
-	cout<<(*it2)[0].name<<endl;
 	bool flag = false;
 	for(fIt=(*it1).begin(); fIt!=(*it1).end(); fIt ++){
 		for( temp = (*it2).begin(); temp!=(*it2).end(); temp ++)
@@ -64,13 +60,8 @@ void Comparator::prepareTrees(){
 	if(fIt != (*it1).end() && fIt != (*it1).begin()){
 		rotate((*it1).begin(),fIt,(*it1).end());
 	}
-	cout<<"fit rotated"<<endl;
 	if(temp!=(*it2).end() && temp!= (*it2).begin())
 		rotate((*it2).begin(),temp,(*it2).end());
-	cout<<"after rotation 1 ---------------------------"<<endl;
-	cout<<(*it1)[0].name<<endl;
-	cout<<"after rotation 2 ---------------------------"<<endl;
-	cout<<(*it2)[0].name<<endl;
 
 }
 
@@ -314,19 +305,21 @@ void Comparator::start(){
 	threadOneCommand = "e";
 	threadTwoCommand = "e";
 	
-		pthread_mutex_lock(&t1Mutex);
-		thread1Go = 1;
-		pthread_cond_signal(&waitT1ForCommand);
-		pthread_mutex_unlock(&t1Mutex);
-		
-		pthread_mutex_lock(&t2Mutex);
-		thread2Go = 1;
-		pthread_cond_signal(&waitT2ForCommand);
-		pthread_mutex_unlock(&t2Mutex);
+	pthread_mutex_lock(&t1Mutex);
+	thread1Go = 1;
+	pthread_cond_signal(&waitT1ForCommand);
+	pthread_mutex_unlock(&t1Mutex);
+	
+	pthread_mutex_lock(&t2Mutex);
+	thread2Go = 1;
+	pthread_cond_signal(&waitT2ForCommand);
+	pthread_mutex_unlock(&t2Mutex);
 
-		cout<<"ALL CHANGES-----------------------------"<<endl;
+	if(changes.size()>0)
 		for(string i : changes)
 			cout<<i<<endl;
+	else
+		cout<<"No Change"<<endl;
 }
 
 void* Comparator::thread1Function(void *){
