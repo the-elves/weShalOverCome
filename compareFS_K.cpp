@@ -58,24 +58,30 @@ void Comparator::prepareTrees(){
 	vector <vector<vector <Dir> > >::iterator it;
 	vector<Dir> temp;
 	vector<Dir>::iterator fIt;
-	int i = 0;
+	int i = 0,k=0,j;
 	vector<vector <Dir> > currentFS;
-	for(it = vfileSystem.begin(); it!= vfileSystem.end(); it++){
-		currentFS = *it;
-		temp = *(currentFS.end()-1);
+	for(i = 0; i<k; i++){
+		j=0;
+		
+		string path ="";
+		for(string d : vcurrentTPath[k]){
+			if(d[0]!='/')
+				path = path +"/"+ d;
+		}
 		for(string majName : majorityChildren){
-			cout<<"majname = "<<majName;
-			for(fIt = temp.begin(); fIt!= temp.end(); fIt++){
+			
+			majName = majName.substr(majName.find_last_of("/")+1);
+			cout<<"majname = "<<majName<<endl;
+
+			for(fIt = (*(vfileSystem[i].end()-1)).begin(); fIt!= (*(vfileSystem[i].end()-1)).end(); fIt++){
 				if((*fIt).name == majName){
-					cout<<"found";
-					iter_swap(temp.begin()+i, fIt);
-					i++;
+					cout<<"found"<<endl;
+					iter_swap((*(vfileSystem[i].end()-1)).begin()+j, fIt); 
+					j++;
 					break;
 				}
 			}
 		}
-		*(currentFS.end()-1) = temp;
-		*it = currentFS;
 
 	}
 	
@@ -159,8 +165,8 @@ void Comparator::analyseAction(){
 	for(int i=0; i<k;i++){
 		if(vThreadCommand[i][0] == 't' && vHandleResponseFrom[i]){
 			/* cout<<"thread one returned"<<endl; */
-			cout<<"thread"<<i<<":";
-			printCurrentLevel(vthreadLevel[i]);
+			/* cout<<"thread"<<i<<":"; */
+			/* printCurrentLevel(vthreadLevel[i]); */
 			if(vthreadLevel[i].size()==0){
 				/* cout<<"thread1levelsize = 0\n"; */
 				while((*(vfileSystem[i].end()-1)).size() == 1 && vfileSystem[i].size()!= 0){
@@ -175,11 +181,16 @@ void Comparator::analyseAction(){
 			else
 				vfileSystem[i].push_back(vthreadLevel[i]);
 		}
+		string path ="";
+		for(string d : vcurrentTPath[i]){
+			if(d[0]!='/')
+				path = path +"/"+ d;
+		}
 		for(Dir a : vthreadLevel[i]){
-			if(occurences.find(a.name) != occurences.end()){
-				occurences[a.name]=occurences[a.name]+1;
+			if(occurences.find(path+"/"+a.name) != occurences.end()){
+				occurences[path+"/"+a.name]=occurences[path+"/"+a.name]+1;
 			}else{
-				occurences[a.name]=1;
+				occurences[path+"/"+a.name]=1;
 			}
 		}
 	}
@@ -193,7 +204,7 @@ void Comparator::analyseAction(){
 	}
 	if(majorityChildren.size()>0)
 		commonSubtreeExists=true;
-
+	prepareTrees();
 }
 
 void Comparator::fireThread1(int i){
@@ -233,11 +244,11 @@ void Comparator::start(){
 		vfileSystem[i].push_back(rootVec);
 	}
 	do{
-		for(vector<vector <Dir> > s : vfileSystem){
-			for(vector<Dir> a : s)
-				printCurrentLevel(a);
-			cout<<endl;
-		}
+		/* for(vector<vector <Dir> > s : vfileSystem){ */
+		/* 	for(vector<Dir> a : s) */
+		/* 		printCurrentLevel(a); */
+		/* 	cout<<endl; */
+		/* } */
 		for(int i =0;i<k;i++){
 			vHandleResponseFrom[i]=true;
 			cout<<"T1command"<<formCommandWord("t",vfileSystem[i],vcurrentTPath[i],vRoot[i])<<endl;
@@ -285,18 +296,18 @@ void* Comparator::thread1Function(void *i){
 			pthread_cond_wait(vWaitTForCommand[id], vTMutex[id]);
 		vThreadGo[id] = 0;
 		pthread_mutex_unlock(vTMutex[id]);
-		cout<<"thread "<<id<<" command received:"<<vThreadCommand[id]<<endl;		
+		/* cout<<"thread "<<id<<" command received:"<<vThreadCommand[id]<<endl; */		
 		if(vThreadCommand[id][0] == 't'){
 			pthread_mutex_lock(&vthreadLevelMutex);
 			vthreadLevel[id].clear();
 			vthreadLevel[id] = traverseDirectoryLevel(vThreadCommand[id].substr(2));
-			cout<<"inside thread:";
-			printCurrentLevel(vthreadLevel[id]);
+			/* cout<<"inside thread:"; */
+			/* printCurrentLevel(vthreadLevel[id]); */
 			pthread_mutex_unlock(&vthreadLevelMutex);
 		}
 		
 		else if(vThreadCommand[id] == "e"){
-			cout<<id<<":Exiting"<<endl;
+			/* cout<<id<<":Exiting"<<endl; */
 			pthread_exit(NULL);
 			
 		}
